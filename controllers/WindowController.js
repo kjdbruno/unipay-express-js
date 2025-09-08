@@ -7,10 +7,10 @@ const {
     Window 
 } = require('../models');
 
-exports.GetAllWindows = async (req, res) => {
+exports.GetAll = async (req, res) => {
 
-    const Page = parseInt(req.query.page) || 1;
-    const Limit = parseInt(req.query.limit) || 10;
+    const Page = parseInt(req.query.Page) || 1;
+    const Limit = parseInt(req.query.Limit) || 10;
     const Offset = (Page - 1) * Limit;
 
     try {
@@ -40,49 +40,23 @@ exports.GetAllWindows = async (req, res) => {
 
 };
 
-exports.GetWindow = async (req, res) => {
-
-    try {
-
-        const windows = await Window.findAll({
-            where: {
-                IsActive: true
-            },
-            attributes: [
-                ['Id', 'Value'],
-                ['Name', 'Label']
-            ]
-        });
-
-        res.json(windows);
-
-    } catch (error) {
-
-        res.status(500).json({ 
-            error: error.message 
-        });
-
-    }
-
-};
-
-exports.CreateWindow = async (req, res) => {
+exports.Create = async (req, res) => {
 
     const {
-        Name,
-        Description
+        name,
+        description
     } = req.body;
 
     try {
 
         const recordExist = await Window.findOne({
             where: { 
-                Name 
+                name 
             }
         });
 
         if (recordExist) {
-            return res.status(403).json({
+            return res.status(500).json({
                 errors: [{
                     type: "manual",
                     value: "",
@@ -94,8 +68,8 @@ exports.CreateWindow = async (req, res) => {
         }
 
         const window = await Window.create({
-            Name,
-            Description
+            name,
+            description
         });
 
         res.status(201).json({ 
@@ -113,23 +87,23 @@ exports.CreateWindow = async (req, res) => {
 
 };
 
-exports.UpdateWindow = async (req, res) => {
+exports.Update = async (req, res) => {
 
     const {
-        Id
+        id
     } = req.params;
 
     const {
-        Name,
-        Description
+        name,
+        description
     } = req.body;
   
     try {
 
-        const window = await Window.findByPk(Id);
+        const window = await Window.findByPk(id);
 
         if (!window) {
-            return res.status(403).json({
+            return res.status(500).json({
                 errors: [{
                     type: "manual",
                     value: "",
@@ -142,13 +116,15 @@ exports.UpdateWindow = async (req, res) => {
 
         const recordExist = await Window.findOne({
             where: {
-                Name,
-                Id: { [Op.ne]: Id }
+                name,
+                id: { 
+                    [Op.ne]: id 
+                }
             },
         });
 
         if (recordExist) {
-            return res.status(403).json({
+            return res.status(500).json({
                 errors: [{
                     type: "manual",
                     value: "",
@@ -160,8 +136,8 @@ exports.UpdateWindow = async (req, res) => {
         }
 
         await window.update({
-            Name,
-            Description
+            name,
+            description
         });
 
         res.status(200).json({ 
@@ -178,18 +154,18 @@ exports.UpdateWindow = async (req, res) => {
     }
 };
 
-exports.DisableWindow = async (req, res) => {
+exports.Disable = async (req, res) => {
 
     const {
-        Id
+        id
     } = req.params;
   
     try {
 
-        const window = await Window.findByPk(Id);
+        const window = await Window.findByPk(id);
 
         if (!window) {
-            return res.status(403).json({
+            return res.status(500).json({
                 errors: [{
                     type: "manual",
                     value: "",
@@ -201,7 +177,7 @@ exports.DisableWindow = async (req, res) => {
         }
 
         await window.update({
-            IsActive: false
+            isActive: false
         });
 
         res.status(200).json({ 
@@ -219,18 +195,18 @@ exports.DisableWindow = async (req, res) => {
 
 };
 
-exports.EnableWindow = async (req, res) => {
+exports.Enable = async (req, res) => {
 
     const {
-        Id
+        id
     } = req.params;
   
     try {
 
-        const window = await Window.findByPk(Id);
+        const window = await Window.findByPk(id);
 
         if (!window) {
-            return res.status(403).json({
+            return res.status(500).json({
                 errors: [{
                     type: "manual",
                     value: "",
@@ -242,7 +218,7 @@ exports.EnableWindow = async (req, res) => {
         }
 
         await window.update({
-            IsActive: true
+            isActive: true
         });
 
         res.status(200).json({ 

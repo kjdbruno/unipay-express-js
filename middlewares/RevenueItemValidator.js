@@ -4,26 +4,26 @@ const {
 } = require('../utils/dependencies');
 
 exports.ValidateForm = [
-    body("Name")
+    body("name")
         .trim()
         .notEmpty().withMessage("name is required"),
-    body("ServiceId")
+    body("serviceId")
         .trim()
         .notEmpty().withMessage("revenue service is required"),
-    body("ReceiptId")
+    body("receiptId")
         .trim()
         .notEmpty().withMessage("receipt is required"),
-    body("Cost")
+    body("cost")
         .optional({ 
             checkFalsy: true 
         })
         .isDecimal({ 
             decimal_digits: '0,2' 
         }).withMessage("cost must be a decimal value"),
-    body("IsManual")
+    body("isManual")
         .trim()
         .notEmpty().withMessage("manual is required"),
-    body("IsOnline")
+    body("isOnline")
         .trim()
         .notEmpty().withMessage("online is required"),
     (req, res, next) => {

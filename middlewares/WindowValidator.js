@@ -3,10 +3,10 @@ const {
 } = require('../utils/dependencies');
 
 exports.ValidateForm = [
-    body("Name")
+    body("name")
         .trim()
         .notEmpty().withMessage("name is required"),
-    body("Description")
+    body("description")
         .trim()
         .notEmpty().withMessage("description is required"),
     (req, res, next) => {

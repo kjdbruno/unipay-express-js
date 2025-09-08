@@ -8,7 +8,9 @@ const {
     Office,
     Account,
     Fund,
-    System
+    System,
+    RevenueService,
+    PaymentReceipt
 } = require('../models');
 
 exports.GetRole = async (req, res) => {
@@ -124,6 +126,80 @@ exports.GetSystem = async (req, res) => {
         });
 
         res.json(systems);
+
+    } catch (error) {
+
+        res.status(500).json({ 
+            error: error.message 
+        });
+
+    }
+
+};
+
+exports.GetService = async (req, res) => {
+
+    try {
+
+        const services = await RevenueService.findAll({
+            where: {
+                isActive: true
+            },
+            include: [
+                {
+                    model: Account,
+                    as: 'Account',
+                    attributes: ['code', 'title']
+                },
+                {
+                    model: Fund,
+                    as: 'Fund',
+                    attributes: ['name']
+                },
+                {
+                    model: Office,
+                    as: 'Office',
+                    attributes: ['alias']
+                },
+                {
+                    model: System,
+                    as: 'System',
+                    attributes: ['name']
+                }
+            ],
+            attributes: [
+                ['id', 'value'],
+                [Sequelize.literal("CONCAT(`Office`.`alias`, ' - ', `RevenueService`.`name`)"), 'label'],
+            ]
+        });
+
+        res.json(services);
+
+    } catch (error) {
+
+        res.status(500).json({ 
+            error: error.message 
+        });
+
+    }
+
+};
+
+exports.GetPaymentReceipt = async (req, res) => {
+
+    try {
+
+        const receipts = await PaymentReceipt.findAll({
+            where: {
+                isActive: true
+            },
+            attributes: [
+                ['id', 'value'],
+                ['name', 'label']
+            ]
+        });
+
+        res.json(receipts);
 
     } catch (error) {
 

@@ -65,11 +65,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     cost: {
       type: DataTypes.DECIMAL(10, 2),
-      allowNull: false,
-      defaultValue: 0.00,
-      set(value) {
-        this.setDataValue('Cost', value === "" ? 0.00 : value);
-      }
+      allowNull: true,
     },
     isManual: {
       type: DataTypes.BOOLEAN,

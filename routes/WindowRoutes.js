@@ -2,12 +2,11 @@ const express = require('express');
 const router = express.Router();
 
 const { 
-    GetAllWindows,
-    GetWindow,
-    CreateWindow,
-    UpdateWindow,
-    DisableWindow,
-    EnableWindow
+    GetAll,
+    Create,
+    Update,
+    Disable,
+    Enable
 } = require('../controllers/WindowController');
 
 const { 
@@ -18,11 +17,10 @@ const {
     ValidateForm 
 } = require('../middlewares/WindowValidator');
 
-router.get('/', VerifyToken, GetAllWindows);
-router.get('/option', VerifyToken, GetWindow);
-router.post('/', VerifyToken, ValidateForm, CreateWindow);
-router.post('/:Id/update', VerifyToken, ValidateForm, UpdateWindow);
-router.post('/:Id/disable', VerifyToken, DisableWindow);
-router.post('/:Id/enable', VerifyToken, EnableWindow);
+router.get('/', VerifyToken, GetAll);
+router.post('/', VerifyToken, ValidateForm, Create);
+router.post('/:id/update', VerifyToken, ValidateForm, Update);
+router.post('/:id/disable', VerifyToken, Disable);
+router.post('/:id/enable', VerifyToken, Enable);
 
 module.exports = router;

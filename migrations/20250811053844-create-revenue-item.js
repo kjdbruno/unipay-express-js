@@ -35,7 +35,7 @@ module.exports = {
       },
       cost: {
         type: Sequelize.DECIMAL(10, 2),
-        allowNull: false
+        allowNull: true
       },
       isManual: {
         type: Sequelize.BOOLEAN,

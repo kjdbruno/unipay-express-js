@@ -2,12 +2,12 @@ const express = require('express');
 const router = express.Router();
 
 const { 
-    GetAllRevenueItems,
-    GetRevenueItem,
-    CreateRevenueItem,
-    UpdateRevenueItem,
-    DisableRevenueItem,
-    EnableRevenueItem
+    GetAll,
+    Get,
+    Create,
+    Update,
+    Disable,
+    Enable
 } = require('../controllers/RevenueItemController');
 
 const { 
@@ -18,11 +18,11 @@ const {
     ValidateForm 
 } = require('../middlewares/RevenueItemValidator');
 
-router.get('/', VerifyToken, GetAllRevenueItems);
-router.get('/option', VerifyToken, GetRevenueItem);
-router.post('/', VerifyToken, ValidateForm, CreateRevenueItem);
-router.post('/:Id/update', VerifyToken, ValidateForm, UpdateRevenueItem);
-router.post('/:Id/disable', VerifyToken, DisableRevenueItem);
-router.post('/:Id/enable', VerifyToken, EnableRevenueItem);
+router.get('/', VerifyToken, GetAll);
+router.get('/option', VerifyToken, Get);
+router.post('/', VerifyToken, ValidateForm, Create);
+router.post('/:id/update', VerifyToken, ValidateForm, Update);
+router.post('/:id/disable', VerifyToken, Disable);
+router.post('/:id/enable', VerifyToken, Enable);
 
 module.exports = router;

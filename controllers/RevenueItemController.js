@@ -10,13 +10,14 @@ const {
     Account,
     Fund,
     Office,
-    System
+    System,
+    PaymentReceipt
 } = require('../models');
 
-exports.GetAllRevenueItems = async (req, res) => {
+exports.GetAll = async (req, res) => {
 
-    const Page = parseInt(req.query.page) || 1;
-    const Limit = parseInt(req.query.limit) || 10;
+    const Page = parseInt(req.query.Page) || 1;
+    const Limit = parseInt(req.query.Limit) || 10;
     const Offset = (Page - 1) * Limit;
 
     try {
@@ -26,39 +27,39 @@ exports.GetAllRevenueItems = async (req, res) => {
                 {
                     model: RevenueService,
                     as: 'RevenueService',
-                    attributes: ['Name'],
+                    attributes: ['name'],
                     include: [
                         {
                             model: Account,
                             as: 'Account',
-                            attributes: ['Code', 'Title']
+                            attributes: ['code', 'title']
                         },
                         {
                             model: Fund,
                             as: 'Fund',
-                            attributes: ['Name']
+                            attributes: ['name']
                         },
                         {
                             model: Office,
                             as: 'Office',
-                            attributes: ['Name']
+                            attributes: ['name']
                         },
                         {
                             model: System,
                             as: 'System',
-                            attributes: ['Name']
+                            attributes: ['name']
                         }
                     ],
                 },
                 {
-                    model: Receipt,
+                    model: PaymentReceipt,
                     as: 'Receipt',
-                    attributes: ['Name']
+                    attributes: ['name']
                 }
             ],
             limit: Limit,
             offset: Offset,
-            order: [['CreatedAt', 'DESC']]
+            order: [['createdAt', 'DESC']]
         });
 
         res.json({
@@ -80,75 +81,68 @@ exports.GetAllRevenueItems = async (req, res) => {
 
 };
 
-exports.GetRevenueItem = async (req, res) => {
+exports.Get = async (id) => {
 
-    try {
-
-        const items = await RevenueItem.findAll({
-            where: {
-                IsActive: true
+    const items = await RevenueItem.findOne({
+        where: {
+            id
+        },
+        include: [
+            {
+                model: RevenueService,
+                as: 'RevenueService',
+                attributes: ['name'],
+                include: [
+                    {
+                        model: Account,
+                        as: 'Account',
+                        attributes: ['code', 'title']
+                    },
+                    {
+                        model: Fund,
+                        as: 'Fund',
+                        attributes: ['name']
+                    },
+                    {
+                        model: Office,
+                        as: 'Office',
+                        attributes: ['name']
+                    },
+                    {
+                        model: System,
+                        as: 'System',
+                        attributes: ['name']
+                    }
+                ],
             },
-            include: [
-                {
-                    model: RevenueService,
-                    as: 'RevenueService',
-                    attributes: ['Name'],
-                    include: [
-                        {
-                            model: Fund,
-                            as: 'Fund',
-                            attributes: ['Name']
-                        },
-                        {
-                            model: Office,
-                            as: 'Office',
-                            attributes: ['Name']
-                        }
-                    ],
-                },
-                {
-                    model: Receipt,
-                    as: 'Receipt',
-                    attributes: ['Name']
-                }
-            ],
-            attributes: [
-                ['Id', 'Value'],
-                [Sequelize.literal("CONCAT(`RevenueService->Office`.`Alias`, ' - ', `RevenueItem`.`Name`)"), 'Label'],
-                ['Cost', 'Cost']
-            ]
-        });
-
-        res.json(items);
-
-    } catch (error) {
-
-        res.status(500).json({ 
-            error: error.message 
-        });
-
-    }
-
+            {
+                model: PaymentReceipt,
+                as: 'Receipt',
+                attributes: ['name']
+            }
+        ]
+    });
+    return items;
 };
 
-exports.CreateRevenueItem = async (req, res) => {
+exports.Create = async (req, res) => {
 
     const {
-        Name,
-        ServiceId,
-        ReceiptId,
-        Cost,
-        IsManual,
-        IsOnline
+        name,
+        serviceId,
+        receiptId,
+        cost,
+        isManual,
+        isOnline
     } = req.body;
-
+    
     try {
 
         const recordExist = await RevenueItem.findOne({
             where: { 
-                Name,
-                ServiceId,
-                ReceiptId
+                name,
+                serviceId,
+                receiptId
             }
         });
 
@@ -165,17 +159,19 @@ exports.CreateRevenueItem = async (req, res) => {
         }
 
         const item = await RevenueItem.create({
-            Name,
-            ServiceId,
-            ReceiptId,
-            Cost,
-            IsManual,
-            IsOnline
+            name,
+            serviceId,
+            receiptId,
+            cost,
+            isManual,
+            isOnline
         });
+
+        console.log(item)
 
         res.status(201).json({ 
             Message: "record created.", 
-            Data: item 
+            // Data: i 
         });
 
     } catch (error) {
@@ -188,24 +184,24 @@ exports.CreateRevenueItem = async (req, res) => {
 
 };
 
-exports.UpdateRevenueItem = async (req, res) => {
+exports.Update = async (req, res) => {
 
     const {
-        Id
+        id
     } = req.params;
 
     const {
-        Name,
-        ServiceId,
-        ReceiptId,
-        Cost,
-        IsManual,
-        IsOnline
+        name,
+        serviceId,
+        receiptId,
+        cost,
+        isManual,
+        isOnline
     } = req.body;
   
     try {
 
-        const item = await RevenueItem.findByPk(Id);
+        const item = await RevenueItem.findByPk(id);
 
         if (!item) {
             return res.status(403).json({
@@ -221,10 +217,12 @@ exports.UpdateRevenueItem = async (req, res) => {
 
         const recordExist = await RevenueItem.findOne({
             where: {
-                Name,
-                ServiceId,
-                ReceiptId,
-                Id: { [Op.ne]: Id }
+                name,
+                serviceId,
+                receiptId,
+                id: { 
+                    [Op.ne]: id 
+                }
             },
         });
 
@@ -241,17 +239,19 @@ exports.UpdateRevenueItem = async (req, res) => {
         }
 
         await item.update({
-            Name,
-            ServiceId,
-            ReceiptId,
-            Cost,
-            IsManual,
-            IsOnline
+            name,
+            serviceId,
+            receiptId,
+            cost,
+            isManual,
+            isOnline
         });
+
+        const i = await Get(item.id);
 
         res.status(200).json({ 
             Message: "record modified.", 
-            Data: item 
+            // Data: item 
         });
 
     } catch (error) {
@@ -263,15 +263,15 @@ exports.UpdateRevenueItem = async (req, res) => {
     }
 };
 
-exports.DisableRevenueItem = async (req, res) => {
+exports.Disable = async (req, res) => {
 
     const {
-        Id
+        id
     } = req.params;
   
     try {
 
-        const item = await RevenueItem.findByPk(Id);
+        const item = await RevenueItem.findByPk(id);
 
         if (!item) {
             return res.status(403).json({
@@ -286,7 +286,7 @@ exports.DisableRevenueItem = async (req, res) => {
         }
 
         await item.update({
-            IsActive: false
+            isActive: false
         });
 
         res.status(200).json({ 
@@ -304,15 +304,15 @@ exports.DisableRevenueItem = async (req, res) => {
 
 };
 
-exports.EnableRevenueItem = async (req, res) => {
+exports.Enable = async (req, res) => {
 
     const {
-        Id
+        id
     } = req.params;
   
     try {
 
-        const item = await RevenueItem.findByPk(Id);
+        const item = await RevenueItem.findByPk(id);
 
         if (!item) {
             return res.status(403).json({
@@ -327,7 +327,7 @@ exports.EnableRevenueItem = async (req, res) => {
         }
 
         await item.update({
-            IsActive: true
+            isActive: true
         });
 
         res.status(200).json({ 
